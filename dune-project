@@ -5,7 +5,7 @@
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github max-legrand/spice))
 
 (authors "Maxwell Legrand")
 
@@ -17,6 +17,6 @@
  (name spice)
  (synopsis "Small OCaml Logging tool")
  (description "A small and lightweight OCaml logging tool. This is tailored around my personal preferences.")
- (depends ocaml dune)
+ (depends ocaml dune lwt stdio)
  (tags
-  (topics "logging")
+  (topics "logging")))
