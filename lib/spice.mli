@@ -13,3 +13,11 @@ val info_lwt : string -> unit Lwt.t
 val debug_lwt : string -> unit Lwt.t
 val error_lwt : string -> unit Lwt.t
 val warn_lwt : string -> unit Lwt.t
+val infof : ('a, unit, string, unit) format4 -> 'a
+val debugf : ('a, unit, string, unit) format4 -> 'a
+val errorf : ('a, unit, string, unit) format4 -> 'a
+val warnf : ('a, unit, string, unit) format4 -> 'a
+val infof_lwt : ('a, unit, string, unit Lwt.t) format4 -> 'a
+val debugf_lwt : ('a, unit, string, unit Lwt.t) format4 -> 'a
+val errorf_lwt : ('a, unit, string, unit Lwt.t) format4 -> 'a
+val warnf_lwt : ('a, unit, string, unit Lwt.t) format4 -> 'a

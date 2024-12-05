@@ -90,3 +90,52 @@ let error_lwt msg =
 ;;
 
 let warn_lwt msg = if should_log WARN then _log_inner WARN msg true else Lwt.return_unit
+
+let infof fmt =
+  Printf.ksprintf
+    (fun msg -> if should_log INFO then Lwt.ignore_result (_log_inner INFO msg false))
+    fmt
+;;
+
+let debugf fmt =
+  Printf.ksprintf
+    (fun msg -> if should_log DEBUG then Lwt.ignore_result (_log_inner DEBUG msg false))
+    fmt
+;;
+
+let errorf fmt =
+  Printf.ksprintf
+    (fun msg -> if should_log ERROR then Lwt.ignore_result (_log_inner ERROR msg false))
+    fmt
+;;
+
+let warnf fmt =
+  Printf.ksprintf
+    (fun msg -> if should_log WARN then Lwt.ignore_result (_log_inner WARN msg false))
+    fmt
+;;
+
+(* Lwt versions *)
+let infof_lwt fmt =
+  Printf.ksprintf
+    (fun msg -> if should_log INFO then _log_inner INFO msg true else Lwt.return_unit)
+    fmt
+;;
+
+let debugf_lwt fmt =
+  Printf.ksprintf
+    (fun msg -> if should_log DEBUG then _log_inner DEBUG msg true else Lwt.return_unit)
+    fmt
+;;
+
+let errorf_lwt fmt =
+  Printf.ksprintf
+    (fun msg -> if should_log ERROR then _log_inner ERROR msg true else Lwt.return_unit)
+    fmt
+;;
+
+let warnf_lwt fmt =
+  Printf.ksprintf
+    (fun msg -> if should_log WARN then _log_inner WARN msg true else Lwt.return_unit)
+    fmt
+;;
