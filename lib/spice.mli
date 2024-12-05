@@ -1,4 +1,3 @@
-
 type level =
   | ERROR
   | WARN
