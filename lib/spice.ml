@@ -110,11 +110,11 @@ let _log_inner level msg lwt =
     match target, lwt with
     | Stdout, true -> Lwt_io.printl colored_msg
     | Stdout, false ->
-      Stdio.print_endline plain_msg;
+      Stdio.print_endline colored_msg;
       Lwt.return_unit
     | Stderr, true -> Lwt_io.eprintl colored_msg
     | Stderr, false ->
-      Stdio.prerr_endline plain_msg;
+      Stdio.prerr_endline colored_msg;
       Lwt.return_unit
     | File filename, true ->
       ensure_file_exists filename;
