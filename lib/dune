@@ -1,5 +1,5 @@
 (library
  (name spice)
  (public_name spice)
- (libraries base unix stdio lwt lwt.unix))
+ (libraries base unix core_unix stdio lwt lwt.unix))
 

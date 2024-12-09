@@ -17,6 +17,6 @@
  (name spice)
  (synopsis "Small OCaml Logging tool")
  (description "A small and lightweight OCaml logging tool. This is tailored around my personal preferences.")
- (depends ocaml dune lwt stdio base)
+ (depends ocaml dune lwt stdio base core_unix)
  (tags
   (topics "logging")))

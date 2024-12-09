@@ -15,6 +15,7 @@ depends: [
   "lwt"
   "stdio"
   "base"
+  "core_unix"
   "odoc" {with-doc}
 ]
 build: [

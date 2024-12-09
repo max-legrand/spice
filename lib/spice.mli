@@ -4,7 +4,14 @@ type level =
   | INFO
   | DEBUG
 
+type output_target =
+  | Stdout
+  | Stderr
+  | File of string
+  | Multiple of output_target list
+
 val set_log_level : level -> unit
+val set_output : output_target -> unit
 val info : string -> unit
 val debug : string -> unit
 val error : string -> unit

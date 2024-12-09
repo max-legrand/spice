@@ -1,5 +1,5 @@
 open Base
-open Unix
+open Core_unix
 
 (** ANSI color codes *)
 let cyan = "\027[0;36m"
@@ -15,13 +15,45 @@ type level =
   | INFO
   | DEBUG
 
-(** Global log level - Default is INFO *)
-let log_level = ref INFO
+type output_target =
+  | Stdout
+  | Stderr
+  | File of string
+  | Multiple of output_target list
 
-let set_log_level level = log_level := level
+(** Global configuration *)
+type config =
+  { mutable log_level : level
+  ; mutable output : output_target
+  }
+
+let config = { log_level = INFO; output = Stdout }
+let set_log_level level = config.log_level <- level
+let set_output target = config.output <- target
+let exists fp = access fp [ `Exists ]
+
+let ensure_file_exists filename =
+  match exists filename with
+  | Ok () -> ()
+  | Error _ ->
+    (* Create an out_channel for the file *)
+    let out_channel = Out_channel.open_text filename in
+    Out_channel.output_string out_channel ""
+;;
+
+let append_to_file filename msg =
+  let channel = Out_channel.open_text filename in
+  Out_channel.output_string channel (msg ^ "\n");
+  Out_channel.close channel
+;;
+
+let append_to_file_lwt filename msg =
+  Lwt_io.with_file ~mode:Lwt_io.Output filename (fun channel ->
+    Lwt_io.write_line channel msg)
+;;
 
 let should_log msg_level =
-  match !log_level, msg_level with
+  match config.log_level, msg_level with
   | ERROR, ERROR -> true
   | WARN, ERROR | WARN, WARN -> true
   | INFO, ERROR | INFO, WARN | INFO, INFO -> true
@@ -61,18 +93,30 @@ let _log_inner level msg lwt =
     | DEBUG -> purple
   in
   let timestamp = timestamp_to_string (get_timestamp ()) in
-  let formatted_msg =
+  let colored_msg =
     Printf.sprintf "%s%s [%s]:%s %s" color timestamp (level_to_string level) reset msg
   in
-  match level, lwt with
-  | ERROR, true -> Lwt_io.eprintl formatted_msg
-  | ERROR, false ->
-    Stdio.prerr_endline formatted_msg;
-    Lwt.return_unit
-  | _, true -> Lwt_io.printl formatted_msg
-  | _, false ->
-    Stdio.print_endline formatted_msg;
-    Lwt.return_unit
+  let plain_msg = Printf.sprintf "%s [%s]: %s" timestamp (level_to_string level) msg in
+  let rec write_to_target target =
+    match target, lwt with
+    | Stdout, true -> Lwt_io.printl colored_msg
+    | Stdout, false ->
+      Stdio.print_endline plain_msg;
+      Lwt.return_unit
+    | Stderr, true -> Lwt_io.eprintl colored_msg
+    | Stderr, false ->
+      Stdio.prerr_endline plain_msg;
+      Lwt.return_unit
+    | File filename, true ->
+      ensure_file_exists filename;
+      append_to_file_lwt filename plain_msg
+    | File filename, false ->
+      ensure_file_exists filename;
+      append_to_file filename plain_msg;
+      Lwt.return_unit
+    | Multiple targets, _ -> Lwt_list.iter_s write_to_target targets
+  in
+  write_to_target config.output
 ;;
 
 let info msg = if should_log INFO then Lwt.ignore_result (_log_inner INFO msg false)
