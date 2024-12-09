@@ -1,6 +1,11 @@
 open Base
 open Core_unix
 
+(* TODO: I want to eventually add module / location information as well,
+   For example:
+   <timestamp> [INFO]: [spice.ml:123] This is an info message
+*)
+
 (** ANSI color codes *)
 let cyan = "\027[0;36m"
 
