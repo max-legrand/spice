@@ -41,20 +41,24 @@ let ensure_file_exists filename =
   match exists filename with
   | Ok () -> ()
   | Error _ ->
-    (* Create an out_channel for the file *)
-    let out_channel = Out_channel.open_text filename in
-    Out_channel.output_string out_channel ""
+    let out_channel = Out_channel.open_gen [ Open_creat; Open_text ] 0o666 filename in
+    Out_channel.close out_channel
 ;;
 
 let append_to_file filename msg =
-  let channel = Out_channel.open_text filename in
+  let channel =
+    Out_channel.open_gen [ Open_append; Open_creat; Open_text ] 0o666 filename
+  in
   Out_channel.output_string channel (msg ^ "\n");
   Out_channel.close channel
 ;;
 
 let append_to_file_lwt filename msg =
-  Lwt_io.with_file ~mode:Lwt_io.Output filename (fun channel ->
-    Lwt_io.write_line channel msg)
+  Lwt_io.with_file
+    ~mode:Lwt_io.Output
+    ~flags:Unix.[ O_WRONLY; O_CREAT; O_APPEND ]
+    filename
+    (fun channel -> Lwt_io.write_line channel msg)
 ;;
 
 let should_log msg_level =
